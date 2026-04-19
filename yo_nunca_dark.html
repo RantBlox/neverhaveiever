@@ -1,0 +1,238 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  #app{min-height:520px;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 2rem;background:#0f0f0f;font-family:'DM Sans',sans-serif}
+  .header{text-align:center;margin-bottom:1.5rem}
+  .title{font-size:24px;font-weight:600;color:#f0f0f0;letter-spacing:-0.5px}
+  .subtitle{font-size:12px;color:#666;margin-top:4px;letter-spacing:0.3px}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:1.25rem}
+  .chip{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #2a2a2a;background:#161616;color:#777;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+  .chip:hover{border-color:#444;color:#aaa}
+  .chip.active{color:#f0f0f0;border-color:#f0f0f0;background:#1e1e1e}
+  .chip[data-level="suave"].active{border-color:#3B6D11;color:#97C459;background:#131a0d}
+  .chip[data-level="media"].active{border-color:#854F0B;color:#EF9F27;background:#1a1208}
+  .chip[data-level="fuerte"].active{border-color:#A32D2D;color:#F09595;background:#1a0d0d}
+  .chip[data-level="extremo"].active{border-color:#534AB7;color:#AFA9EC;background:#0f0e1a}
+  .card-wrap{width:100%;max-width:560px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .card{width:100%;min-height:220px;border-radius:12px;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;border:1px solid #2a2a2a;background:#141414;transition:transform 0.15s,opacity 0.15s}
+  .card.flip-out{transform:scale(0.96);opacity:0}
+  .card.flip-in{transform:scale(0.96);opacity:0}
+  .level-badge{position:absolute;top:14px;right:14px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:4px;font-family:'DM Sans',sans-serif;border:1px solid}
+  .badge-suave{background:#131a0d;color:#97C459;border-color:#3B6D11}
+  .badge-media{background:#1a1208;color:#EF9F27;border-color:#854F0B}
+  .badge-fuerte{background:#1a0d0d;color:#F09595;border-color:#A32D2D}
+  .badge-extremo{background:#0f0e1a;color:#AFA9EC;border-color:#534AB7}
+  .card-num{font-size:11px;color:#444;margin-bottom:1.25rem;letter-spacing:0.5px;font-weight:500}
+  .card-text{font-size:18px;line-height:1.6;color:#e8e8e8;font-style:italic;font-weight:400}
+  .controls{display:flex;align-items:center;gap:10px;margin-top:1.5rem}
+  .btn-main{padding:10px 28px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #f0f0f0;background:#f0f0f0;color:#0f0f0f;transition:opacity 0.15s,transform 0.1s;font-family:'DM Sans',sans-serif}
+  .btn-main:hover{opacity:0.88}
+  .btn-main:active{transform:scale(0.97)}
+  .btn-sec{padding:10px 20px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #2a2a2a;background:transparent;color:#666;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+  .btn-sec:hover{border-color:#444;color:#aaa}
+  .btn-sec:active{transform:scale(0.97)}
+  .counter{font-size:12px;color:#444;margin-top:1rem;letter-spacing:0.3px}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .dot-s{background:#639922}.dot-m{background:#BA7517}.dot-f{background:#E24B4A}.dot-x{background:#7F77DD}
+</style>
+
+<div id="app">
+  <div class="header">
+    <div class="title">Yo Nunca</div>
+    <div class="subtitle">150 preguntas · baja un dedo si lo has hecho</div>
+  </div>
+  <div class="filters">
+    <div class="chip active" data-level="all">Todas</div>
+    <div class="chip" data-level="suave"><span class="dot dot-s"></span>Suave</div>
+    <div class="chip" data-level="media"><span class="dot dot-m"></span>Media</div>
+    <div class="chip" data-level="fuerte"><span class="dot dot-f"></span>Fuerte</div>
+    <div class="chip" data-level="extremo"><span class="dot dot-x"></span>Extremo</div>
+  </div>
+  <div class="card-wrap">
+    <div class="card" id="card">
+      <span class="level-badge" id="badge"></span>
+      <div class="card-num" id="cardNum"></div>
+      <div class="card-text" id="cardText"></div>
+    </div>
+    <div class="controls">
+      <button class="btn-sec" id="btnPrev">← Anterior</button>
+      <button class="btn-main" id="btnNext">Siguiente →</button>
+    </div>
+    <div class="counter" id="counter"></div>
+  </div>
+</div>
+
+<script>
+const ALL=[
+  {t:"Yo nunca he llorado con una película delante de alguien.",l:"suave"},
+  {t:"Yo nunca he fingido que me gustaba algo que me regalaron.",l:"suave"},
+  {t:"Yo nunca he hecho el muerto cuando alguien me llamaba.",l:"suave"},
+  {t:"Yo nunca he dicho que estaba de camino cuando ni había salido de casa.",l:"suave"},
+  {t:"Yo nunca he ensayado una conversación antes de tenerla.",l:"suave"},
+  {t:"Yo nunca he hecho como que no veía a alguien conocido para no saludar.",l:"suave"},
+  {t:"Yo nunca he cantado a pleno pulmón en un sitio público.",l:"suave"},
+  {t:"Yo nunca he comido algo del suelo aplicando la regla de los 5 segundos.",l:"suave"},
+  {t:"Yo nunca he comprado algo solo para impresionar a alguien.",l:"suave"},
+  {t:"Yo nunca he faltado a algo importante por quedarme viendo series.",l:"suave"},
+  {t:"Yo nunca he comido en la cama y me he convencido de que era un plan de vida válido.",l:"suave"},
+  {t:"Yo nunca he fingido que mi batería estaba muerta para no tener que contestar.",l:"suave"},
+  {t:"Yo nunca he enviado un audio de voz y luego me he arrepentido a los dos segundos.",l:"suave"},
+  {t:"Yo nunca me he emocionado con un anuncio de televisión.",l:"suave"},
+  {t:"Yo nunca he llegado tarde a algo importante y he puesto una excusa ridícula.",l:"suave"},
+  {t:"Yo nunca he fingido que me gustaba una película solo porque a todo el mundo le gustaba.",l:"suave"},
+  {t:"Yo nunca he hecho scroll infinito en el perfil de alguien durante más de 20 minutos.",l:"suave"},
+  {t:"Yo nunca he practicado una sonrisa frente al espejo antes de salir.",l:"suave"},
+  {t:"Yo nunca he comprado algo online en un momento de bajón emocional.",l:"suave"},
+  {t:"Yo nunca he fingido entender una referencia cultural que no conocía de nada.",l:"suave"},
+  {t:"Yo nunca me he inventado que tenía algo importante para salir de un plan que no quería.",l:"suave"},
+  {t:"Yo nunca he cantado en la ducha como si fuera un concierto en estadio.",l:"suave"},
+  {t:"Yo nunca he dejado una conversación en visto porque no sabía qué contestar.",l:"suave"},
+  {t:"Yo nunca he fingido reírme con un chiste que no entendí.",l:"suave"},
+  {t:"Yo nunca he tenido un alter ego con nombre propio cuando estoy solo en casa.",l:"suave"},
+  {t:"Yo nunca he tomado una decisión importante guiándome por el horóscopo.",l:"suave"},
+  {t:"Yo nunca he vuelto a ver el perfil de alguien a quien bloqueé usando otra cuenta.",l:"suave"},
+  {t:"Yo nunca he respondido 'en camino' cuando todavía estaba eligiendo qué ponerme.",l:"suave"},
+  {t:"Yo nunca he googleado cómo hacer algo que ya sabía hacer para que alguien me viera aprenderlo.",l:"suave"},
+  {t:"Yo nunca he enviado un mensaje por error a quien iba dirigido y fingí que era un copy paste.",l:"suave"},
+  {t:"Yo nunca he pasado más de una hora preparándome para una videollamada que duró 5 minutos.",l:"suave"},
+  {t:"Yo nunca he buscado a alguien en Google antes de quedar con esa persona.",l:"suave"},
+  {t:"Yo nunca he fingido que no tenía wifi para no contestar algo incómodo.",l:"suave"},
+  {t:"Yo nunca he mentido sobre haber leído un libro que todo el mundo menciona.",l:"suave"},
+  {t:"Yo nunca he grabado un voice note de más de dos minutos y luego lo he borrado sin enviarlo.",l:"suave"},
+  {t:"Yo nunca he mirado el móvil de alguien aprovechando que lo dejó desbloqueado.",l:"media"},
+  {t:"Yo nunca he tenido un crush con alguien del grupo.",l:"media"},
+  {t:"Yo nunca he cotilleado a alguien de este grupo con otra persona.",l:"media"},
+  {t:"Yo nunca he fingido que dormía para no tener que hablar con alguien.",l:"media"},
+  {t:"Yo nunca he bloqueado a alguien y luego desbloqueado para ver su perfil.",l:"media"},
+  {t:"Yo nunca he hecho algo estúpido para llamar la atención de alguien que me gustaba.",l:"media"},
+  {t:"Yo nunca he stalkeado las fotos de alguien hasta llegar al año 2018.",l:"media"},
+  {t:"Yo nunca he pedido perdón por algo sin sentirlo.",l:"media"},
+  {t:"Yo nunca he exagerado una historia para hacerla más interesante.",l:"media"},
+  {t:"Yo nunca he hablado mal de alguien delante de quien ese alguien creía que era su amigo.",l:"media"},
+  {t:"Yo nunca he leído los mensajes de alguien sin su permiso.",l:"media"},
+  {t:"Yo nunca he usado los sentimientos de alguien para salir mejor parado de una situación.",l:"media"},
+  {t:"Yo nunca me he alegrado en secreto de que algo no le saliera bien a alguien.",l:"media"},
+  {t:"Yo nunca he guardado rencor durante más de un mes a alguien del grupo sin decírselo.",l:"media"},
+  {t:"Yo nunca he creado un perfil falso para ver lo que alguien publicaba sin que me viera.",l:"media"},
+  {t:"Yo nunca he dejado que alguien creyera que éramos más cercanos de lo que éramos.",l:"media"},
+  {t:"Yo nunca he enviado una captura de pantalla de una conversación privada.",l:"media"},
+  {t:"Yo nunca he usado a alguien como plan B mientras esperaba a que el plan A funcionara.",l:"media"},
+  {t:"Yo nunca he mentido sobre cuánto me gustaba alguien para proteger mi imagen.",l:"media"},
+  {t:"Yo nunca he dado un consejo que sabía que era malo porque me convenía que siguieran ese camino.",l:"media"},
+  {t:"Yo nunca he dejado de ser yo mismo para gustarle a alguien.",l:"media"},
+  {t:"Yo nunca he fingido tener más experiencia de la que tenía para impresionar a alguien.",l:"media"},
+  {t:"Yo nunca he deseado que alguien que me gustaba rompiera con su pareja.",l:"media"},
+  {t:"Yo nunca he pasado de no interesarme alguien a tener un crush por cómo me trató un solo día.",l:"media"},
+  {t:"Yo nunca he mandado un mensaje a la persona equivocada y me he arrepentido.",l:"media"},
+  {t:"Yo nunca he dicho que estaba bien cuando en realidad no lo estaba.",l:"media"},
+  {t:"Yo nunca he fingido no estar enamorado para parecer más interesante.",l:"media"},
+  {t:"Yo nunca he coqueteado con alguien solo para ver hasta dónde llegaba, sin intención real.",l:"media"},
+  {t:"Yo nunca he besado a alguien que no me gustaba nada solo porque la situación lo pedía.",l:"media"},
+  {t:"Yo nunca he guardado una foto de alguien en el móvil sin que lo supiera.",l:"media"},
+  {t:"Yo nunca he mentido sobre mi situación sentimental para parecer más libre o más ocupado.",l:"media"},
+  {t:"Yo nunca he tenido una conversación con alguien de este grupo que no le he contado a nadie más.",l:"fuerte"},
+  {t:"Yo nunca he sentido celos de alguien de este grupo.",l:"fuerte"},
+  {t:"Yo nunca he tenido un sueño romántico con alguien que no esperaba.",l:"fuerte"},
+  {t:"Yo nunca he guardado sentimientos por alguien durante más de 6 meses sin decírselo.",l:"fuerte"},
+  {t:"Yo nunca he mandado un mensaje en broma esperando que la otra persona lo tomara en serio.",l:"fuerte"},
+  {t:"Yo nunca he besado a alguien que le gustaba a un amigo o amiga.",l:"fuerte"},
+  {t:"Yo nunca he tenido química con alguien del grupo que no era libre para tenerla.",l:"fuerte"},
+  {t:"Yo nunca he guardado un secreto de alguien del grupo que podría haberlo cambiado todo si salía.",l:"fuerte"},
+  {t:"Yo nunca he hecho daño a alguien de forma consciente para protegerme emocionalmente.",l:"fuerte"},
+  {t:"Yo nunca he amado a alguien y al mismo tiempo deseado que se alejara porque me asustaba.",l:"fuerte"},
+  {t:"Yo nunca he dicho 'te quiero' y en ese momento no lo sentía del todo.",l:"fuerte"},
+  {t:"Yo nunca he preferido sufrir en silencio antes que admitir lo que sentía.",l:"fuerte"},
+  {t:"Yo nunca me he enamorado de alguien que no era libre.",l:"fuerte"},
+  {t:"Yo nunca he repetido un patrón en mis relaciones que sé perfectamente que me hace daño.",l:"fuerte"},
+  {t:"Yo nunca me he convencido de que algo o alguien no me importaba cuando claramente sí.",l:"fuerte"},
+  {t:"Yo nunca he confundido a alguien con quien quería que fuera.",l:"fuerte"},
+  {t:"Yo nunca he esperado que alguien del grupo diera el primer paso sabiendo que no lo daría.",l:"fuerte"},
+  {t:"Yo nunca he hecho algo que sabía que me iba a doler porque quería ver si podía aguantarlo.",l:"fuerte"},
+  {t:"Yo nunca he tenido ganas de besar a alguien en esta habitación esta noche.",l:"fuerte"},
+  {t:"Yo nunca he enviado un mensaje subido de tono a alguien que no era mi pareja.",l:"fuerte"},
+  {t:"Yo nunca he flirteado con alguien mientras estaba en una relación.",l:"fuerte"},
+  {t:"Yo nunca he tenido una conversación de madrugada con alguien que cambió algo entre nosotros.",l:"fuerte"},
+  {t:"Yo nunca he deseado que alguien me viera diferente de como me ve ahora.",l:"fuerte"},
+  {t:"Yo nunca he tenido sentimientos por alguien que está en esta habitación ahora mismo.",l:"extremo"},
+  {t:"Yo nunca he estado a punto de decirle algo importante a alguien y me he echado atrás.",l:"extremo"},
+  {t:"Yo nunca he hecho algo de lo que me arrepiento profundamente con alguien del grupo.",l:"extremo"},
+  {t:"Yo nunca he querido que alguien de aquí me pidiera algo que no me ha pedido nunca.",l:"extremo"},
+  {t:"Yo nunca he fingido no tener sentimientos cuando claramente los tenía.",l:"extremo"},
+  {t:"Yo nunca he fantasiado con una situación que involucra a alguien de este grupo.",l:"extremo"},
+  {t:"Yo nunca he tenido sentimientos simultáneos por dos personas del grupo al mismo tiempo.",l:"extremo"},
+  {t:"Yo nunca he hecho algo específicamente para que alguien del grupo se fijara en mí.",l:"extremo"},
+  {t:"Yo nunca me he dado cuenta de que alguien me importaba en el momento en que lo estaba perdiendo.",l:"extremo"},
+  {t:"Yo nunca he tenido un momento esta noche en que me haya costado mantener la compostura por alguien de aquí.",l:"extremo"},
+  {t:"Yo nunca he querido que alguien del grupo supiera algo sobre mí sin tener que decírselo.",l:"extremo"},
+  {t:"Yo nunca he imaginado cómo sería todo si hubiera algo entre mí y alguien de esta sala.",l:"extremo"},
+  {t:"Yo nunca he dejado de hacer algo importante porque alguien del grupo me pedía que me quedara.",l:"extremo"},
+  {t:"Yo nunca he retenido algo que sentía por alguien del grupo por miedo a que lo cambiara todo.",l:"extremo"},
+  {t:"Yo nunca he pensado que una noche con alguien de este grupo podría complicar todo para siempre.",l:"extremo"},
+  {t:"Yo nunca he necesitado a alguien del grupo de una forma que me ha asustado reconocer.",l:"extremo"},
+  {t:"Yo nunca he deseado que alguien del grupo supiera exactamente lo que me provoca.",l:"extremo"},
+  {t:"Yo nunca he contenido lo que sentía esta noche por alguien de esta sala.",l:"extremo"},
+  {t:"Yo nunca he sentido que algo de lo que hay entre mí y alguien del grupo es demasiado para llamarlo amistad.",l:"extremo"},
+  {t:"Yo nunca he soñado con alguien de este grupo de una forma que cambió cómo lo veía al despertar.",l:"extremo"},
+  {t:"Yo nunca he deseado que algo se acabara para que alguien del grupo estuviera disponible.",l:"extremo"},
+  {t:"Yo nunca he cambiado cómo actúo cuando alguien del grupo específico está presente.",l:"extremo"},
+  {t:"Yo nunca he tenido ganas de decirle a alguien de aquí que me gusta, ahora mismo, en este momento.",l:"extremo"},
+  {t:"Yo nunca he mirado a alguien de este grupo esta noche y pensado cosas que no debería estar pensando.",l:"extremo"},
+  {t:"Yo nunca he enviado un mensaje con doble intención a alguien del grupo esperando que lo pillara.",l:"extremo"},
+  {t:"Yo nunca he pensado en cómo sería besar a alguien de esta habitación.",l:"extremo"},
+  {t:"Yo nunca he deseado quedarme a solas con alguien del grupo al terminar esta noche.",l:"extremo"},
+  {t:"Yo nunca he notado que mi corazón iba más rápido cuando alguien del grupo me tocaba sin querer.",l:"extremo"},
+  {t:"Yo nunca he guardado una conversación con alguien del grupo porque la releía cuando me sentía solo.",l:"extremo"},
+  {t:"Yo nunca he deseado que alguien del grupo me preguntara directamente lo que siento por él o ella.",l:"extremo"},
+  {t:"Yo nunca he hecho algo esta noche esperando una reacción concreta de alguien del grupo.",l:"extremo"},
+  {t:"Yo nunca he pensado en alguien de aquí cuando escuchaba una canción que me gustaba mucho.",l:"extremo"},
+  {t:"Yo nunca he querido que alguien de este grupo se quedara cuando se estaba yendo.",l:"extremo"},
+  {t:"Yo nunca he deseado que alguien del grupo me viera de la misma forma en que yo lo veo a él o ella.",l:"extremo"},
+  {t:"Yo nunca he tenido miedo de que alguien del grupo descubra cuánto me importa.",l:"extremo"},
+  {t:"Yo nunca he sentido que una mirada de alguien de esta sala decía más que cualquier cosa que se haya dicho esta noche.",l:"extremo"},
+];
+
+let filtered=[...ALL];
+let idx=0;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+shuffle(filtered);
+
+const labels={suave:'Suave',media:'Media',fuerte:'Fuerte',extremo:'Extremo'};
+
+function show(anim){
+  const card=document.getElementById('card');
+  const txt=document.getElementById('cardText');
+  const badge=document.getElementById('badge');
+  const num=document.getElementById('cardNum');
+  const counter=document.getElementById('counter');
+  if(!filtered.length){txt.textContent='No hay preguntas para este nivel.';badge.className='level-badge';badge.textContent='';num.textContent='';counter.textContent='';return}
+  const q=filtered[idx];
+  const update=()=>{
+    txt.textContent=q.t;
+    badge.className='level-badge badge-'+q.l;
+    badge.textContent=labels[q.l]||q.l;
+    num.textContent=(idx+1)+' / '+filtered.length;
+    counter.textContent='';
+  };
+  if(anim){
+    card.classList.add('flip-out');
+    setTimeout(()=>{update();card.classList.remove('flip-out');card.classList.add('flip-in');requestAnimationFrame(()=>requestAnimationFrame(()=>card.classList.remove('flip-in')));},150);
+  }else update();
+}
+
+document.getElementById('btnNext').addEventListener('click',()=>{idx=(idx+1)%filtered.length;show(true)});
+document.getElementById('btnPrev').addEventListener('click',()=>{idx=(idx-1+filtered.length)%filtered.length;show(true)});
+
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click',function(){
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    this.classList.add('active');
+    const lvl=this.dataset.level;
+    filtered=lvl==='all'?[...ALL]:ALL.filter(q=>q.l===lvl);
+    shuffle(filtered);idx=0;show(false);
+  });
+});
+
+show(false);
+</script>
